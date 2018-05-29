@@ -13,6 +13,8 @@ TAB_1 = '\t '
 TAB_2 = '\t\t '
 TAB_3 = '\t\t\t '
 
+HTTP_PORT = 80
+MAX_PORTS = 65535
 
 class bcolors:
     HEADER = '\033[95m'
@@ -34,7 +36,7 @@ except error:
 
 while True:
     # Accept a tcp packet
-    packet, addr = s.recvfrom(65535)
+    packet, addr = s.recvfrom(MAX_PORTS)
 
     raw_data = packet[14:]
     ipv4 = IPv4(raw_data)
@@ -43,7 +45,7 @@ while True:
     if (len(tcp.data) > 0):
         # For checking HTTP data
         http = HTTP(tcp.data)
-        if tcp.src_port == 80 or tcp.dest_port == 80:
+        if tcp.src_port == HTTP_PORT or tcp.dest_port == HTTP_PORT:
             print(bcolors.OKGREEN + TAB_1 + 'TCP Segment:' + bcolors.ENDC)
             print(bcolors.OKGREEN + TAB_2 + 'Source Addr: {} {}, \n {}Destination Addr: {} {}'.format(TAB_2, ipv4.src, TAB_2, TAB_1, ipv4.target))
             print(bcolors.OKGREEN + TAB_2 + 'Source Port: {} {}, \n {}Destination Port: {} {}'.format(TAB_2, tcp.src_port, TAB_2, TAB_1, tcp.dest_port) + bcolors.ENDC)
@@ -54,9 +56,7 @@ while True:
                     buf = StringIO(http.data)
                     print(buf.read())
                 else:
-                    print(type(http.data))
                     print(bcolors.HEADER + 'HTTP Data:' + bcolors.ENDC)
-                    print(bcolors.FAIL + "Else" + bcolors.ENDC)
                     buf = StringIO(http.data.decode('utf-8'))
                     print(http.data)
 
